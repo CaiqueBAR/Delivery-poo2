@@ -1,0 +1,110 @@
+<UserControl x:Class="DeliverySystem.Presentation.Wpf.Views.DashboardPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DeliverySystem.Presentation.Wpf.ViewModels">
+    <StackPanel>
+        <ItemsControl ItemsSource="{Binding Cards}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="4" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:DashboardCardViewModel}">
+                    <Border Margin="0,0,16,16"
+                            Padding="18"
+                            CornerRadius="20"
+                            Background="{StaticResource SurfaceBrush}">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="18" ShadowDepth="0" Color="#000000" Opacity="0.25" />
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Titulo}" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,10,0,8" Text="{Binding Valor}" FontSize="28" FontWeight="Bold" />
+                            <TextBlock Text="{Binding Descricao}" Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Grid Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*" />
+                <ColumnDefinition Width="1.2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Margin="0,0,18,0" Padding="20" CornerRadius="20" Background="{StaticResource SurfaceBrush}">
+                <StackPanel>
+                    <TextBlock Text="Restaurantes" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,4,0,14" Text="Cadastro, edição, remoção e listagem." Foreground="{StaticResource TextSecondaryBrush}" />
+                    <ListView Background="Transparent" BorderThickness="0" ItemsSource="{Binding Restaurantes}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:RestauranteListItemViewModel}">
+                                <Border Margin="0,0,0,10" Padding="14" Background="#162033" CornerRadius="14">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,4,0,0" Text="{Binding Categoria}" Foreground="#FDBA74" />
+                                        <TextBlock Margin="0,4,0,0" Text="{Binding Endereco}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Margin="0,0,18,0" Padding="20" CornerRadius="20" Background="{StaticResource SurfaceBrush}">
+                <StackPanel>
+                    <TextBlock Text="Produtos" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,4,0,14" Text="Pratos e bebidas com busca e detalhes." Foreground="{StaticResource TextSecondaryBrush}" />
+                    <ListView Background="Transparent" BorderThickness="0" ItemsSource="{Binding Produtos}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ProdutoListItemViewModel}">
+                                <Border Margin="0,0,0,10" Padding="14" Background="#162033" CornerRadius="14">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,4,0,0" Text="{Binding Descricao}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Padding="10,6" Background="{StaticResource AccentBrush}" CornerRadius="12" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Preco}" FontWeight="SemiBold" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Padding="20" CornerRadius="20" Background="{StaticResource SurfaceBrush}">
+                <StackPanel>
+                    <TextBlock Text="Pedidos" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,4,0,14" Text="Acompanhamento de status." Foreground="{StaticResource TextSecondaryBrush}" />
+                    <ListView Background="Transparent" BorderThickness="0" ItemsSource="{Binding Pedidos}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:PedidoListItemViewModel}">
+                                <Border Margin="0,0,0,10" Padding="14" Background="#162033" CornerRadius="14">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <TextBlock Text="{Binding Numero}" FontWeight="SemiBold" />
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Valor}" Foreground="#86EFAC" FontWeight="SemiBold" />
+                                        </DockPanel>
+                                        <TextBlock Margin="0,5,0,0" Text="{Binding Cliente}" />
+                                        <TextBlock Margin="0,4,0,0" Text="{Binding Status}" Foreground="#93C5FD" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </StackPanel>
+</UserControl>

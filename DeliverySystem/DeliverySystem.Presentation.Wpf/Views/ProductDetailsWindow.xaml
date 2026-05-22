@@ -1,0 +1,149 @@
+<Window x:Class="DeliverySystem.Presentation.Wpf.Views.ProductDetailsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:DeliverySystem.Presentation.Wpf.ViewModels"
+        Title="Detalhes do Produto"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#66000000"
+        AllowsTransparency="True"
+        WindowStyle="None">
+    <Grid Margin="40">
+        <Border Width="980"
+                Height="560"
+                Background="{StaticResource SurfaceBrush}"
+                CornerRadius="14"
+                Padding="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="#F3F4F6" CornerRadius="14,0,0,14">
+                    <Grid>
+                        <Image Stretch="UniformToFill"
+                               Source="{Binding ImagemSelecionada, Converter={StaticResource ImagePathToImageSourceConverter}}" />
+                        <TextBlock Text="Sem foto"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ImagemSelecionada}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ImagemSelecionada}" Value="">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Column="1" Margin="26">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <DockPanel>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Nome}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Margin="0,6,0,0" Text="{Binding Descricao}" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Button DockPanel.Dock="Right"
+                                Width="34"
+                                Height="34"
+                                Margin="12,0,0,0"
+                                Style="{StaticResource IconButtonStyle}"
+                                Command="{Binding CloseCommand}"
+                                Content="X" />
+                    </DockPanel>
+
+                    <Border Grid.Row="1" Margin="0,14,0,0" Padding="12" Background="#F9FAFB" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12">
+                        <DockPanel>
+                            <TextBlock Text="{Binding RestauranteNome}" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock DockPanel.Dock="Right"
+                                       Text="{Binding RestauranteAvaliacao, StringFormat={}{0:0.0}}"
+                                       Foreground="#F59E0B"
+                                       FontWeight="SemiBold" />
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Row="2" Margin="0,14,0,0" Padding="12" Background="#F9FAFB" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12">
+                        <DockPanel>
+                            <TextBlock Text="Preço" Foreground="{StaticResource TextSecondaryBrush}" />
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding PrecoTexto}" FontSize="18" FontWeight="SemiBold" />
+                        </DockPanel>
+                    </Border>
+
+                    <StackPanel Grid.Row="3" Margin="0,16,0,0">
+                        <TextBlock Text="Fotos" FontWeight="SemiBold" />
+                        <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding Imagens}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Margin="0,0,10,0"
+                                            Width="64"
+                                            Height="48"
+                                            Padding="0"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Command="{Binding DataContext.SelectThumbnailCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}">
+                                        <Border CornerRadius="10" Background="#F3F4F6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                            <Image Stretch="UniformToFill"
+                                                   Source="{Binding ., Converter={StaticResource ImagePathToImageSourceConverter}}" />
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <Border Grid.Row="4" Margin="0,18,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="#F9FAFB" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="8">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Width="34" Height="34" Style="{StaticResource IconButtonStyle}" Command="{Binding DecreaseQuantityCommand}" Content="-" />
+                                    <TextBlock Width="38" TextAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Quantidade}" />
+                                    <Button Width="34" Height="34" Style="{StaticResource IconButtonStyle}" Command="{Binding IncreaseQuantityCommand}" Content="+" />
+                                </StackPanel>
+                            </Border>
+
+                            <Button Grid.Column="2"
+                                    Height="50"
+                                    FontWeight="SemiBold"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Command="{Binding AddToCartCommand}">
+                                <DockPanel>
+                                    <TextBlock Text="Adicionar" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding PrecoTexto}" />
+                                </DockPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

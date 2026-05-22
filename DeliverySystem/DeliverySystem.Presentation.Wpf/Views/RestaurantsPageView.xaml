@@ -1,0 +1,79 @@
+<UserControl x:Class="DeliverySystem.Presentation.Wpf.Views.RestaurantsPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DeliverySystem.Presentation.Wpf.ViewModels">
+    <StackPanel>
+        <TextBlock Text="{Binding Titulo}" FontSize="22" FontWeight="SemiBold" />
+
+        <ScrollViewer Margin="0,14,0,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Filtros}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,0,10,0"
+                                Padding="12,8"
+                                Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="999">
+                            <TextBlock Text="{Binding .}" Foreground="{StaticResource TextSecondaryBrush}" />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <ItemsControl Margin="0,18,0,0" ItemsSource="{Binding Restaurantes}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel ItemWidth="410" ItemHeight="92" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:RestaurantCardViewModel}">
+                    <Border Margin="0,0,16,16"
+                            Padding="12"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="64" />
+                                <ColumnDefinition Width="14" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Width="64" Height="64">
+                                <Border CornerRadius="12" Background="#F3F4F6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" />
+                                <Image Stretch="UniformToFill"
+                                       Source="{Binding LogoPath, Converter={StaticResource ImagePathToImageSourceConverter}}" />
+                            </Grid>
+
+                            <StackPanel Grid.Column="2">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Avaliacao, StringFormat={}{0:0.0}}" Foreground="#F59E0B" FontWeight="SemiBold" />
+                                </DockPanel>
+
+                                <TextBlock Margin="0,6,0,0" Text="{Binding Categoria}" Foreground="{StaticResource TextSecondaryBrush}" />
+                                <TextBlock Margin="0,6,0,0"
+                                           Foreground="{StaticResource TextSecondaryBrush}">
+                                    <Run Text="{Binding Tempo}" />
+                                    <Run Text=" " />
+                                    <Run Text="{Binding Separador}" />
+                                    <Run Text=" " />
+                                    <Run Text="{Binding Entrega}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>
