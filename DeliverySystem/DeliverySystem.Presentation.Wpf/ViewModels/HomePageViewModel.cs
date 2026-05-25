@@ -19,6 +19,12 @@ public partial class HomePageViewModel : ObservableObject
     [ObservableProperty]
     private string _promoBarText = "Você tem cupons! Aproveite seus descontos";
 
+    [ObservableProperty]
+    private bool _isLoading;
+
+    [ObservableProperty]
+    private string? _errorMessage;
+
     public HomePageViewModel(ScopedRunner runner, IProductDetailsDialogService dialog)
     {
         _runner = runner;
@@ -44,6 +50,8 @@ public partial class HomePageViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadAsync()
     {
+        IsLoading = true;
+        ErrorMessage = null;
         try
         {
             await _runner.RunAsync(async sp =>
@@ -75,6 +83,11 @@ public partial class HomePageViewModel : ObservableObject
         catch
         {
             LoadMock();
+            ErrorMessage = "Modo demonstração: não foi possível carregar do banco.";
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

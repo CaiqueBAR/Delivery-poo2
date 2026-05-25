@@ -10,6 +10,7 @@ public partial class MainViewModel : ObservableObject
     private readonly HomePageViewModel _home;
     private readonly RestaurantsPageViewModel _restaurants;
     private readonly ProductsPageViewModel _products;
+    private readonly CartPageViewModel _cartPage;
     private readonly CartState _cart;
 
     [ObservableProperty]
@@ -26,15 +27,19 @@ public partial class MainViewModel : ObservableObject
         HomePageViewModel home,
         RestaurantsPageViewModel restaurants,
         ProductsPageViewModel products,
+        CartPageViewModel cartPage,
         CartState cart)
     {
         _home = home;
         _restaurants = restaurants;
         _products = products;
+        _cartPage = cartPage;
         _cart = cart;
 
         Tabs.Add(new NavTabViewModel("Inicio", "Início", isSelected: true));
         Tabs.Add(new NavTabViewModel("Restaurantes", "Restaurantes"));
+        Tabs.Add(new NavTabViewModel("Produtos", "Produtos"));
+        Tabs.Add(new NavTabViewModel("Carrinho", "Carrinho"));
         Tabs.Add(new NavTabViewModel("Mercados", "Mercados"));
         Tabs.Add(new NavTabViewModel("Bebidas", "Bebidas"));
         Tabs.Add(new NavTabViewModel("Farmacias", "Farmácias"));
@@ -66,7 +71,20 @@ public partial class MainViewModel : ObservableObject
         await NavigateAsync("Produtos", term);
     }
 
-    private async Task NavigateAsync(string key, string? searchTerm = null)
+    [RelayCommand]
+    private async Task GoToCartAsync()
+    {
+        await NavigateAsync("Carrinho");
+    }
+
+    [RelayCommand]
+    private async Task OpenRestaurantAsync(RestaurantCardViewModel? restaurant)
+    {
+        if (restaurant is null) return;
+        await NavigateAsync("Produtos", restauranteId: restaurant.Id);
+    }
+
+    private async Task NavigateAsync(string key, string? searchTerm = null, int? restauranteId = null)
     {
         var hasTab = Tabs.Any(t => t.Key == key);
         if (hasTab)
@@ -87,16 +105,29 @@ public partial class MainViewModel : ObservableObject
             case "Produtos":
                 CurrentPage = _products;
                 await _products.LoadAsync();
+                if (restauranteId is int id)
+                {
+                    var option = _products.Restaurantes.FirstOrDefault(r => r.Id == id);
+                    if (option is not null)
+                    {
+                        _products.RestauranteSelecionado = option;
+                    }
+                }
+
                 if (!string.IsNullOrWhiteSpace(searchTerm))
                 {
                     _products.Busca = searchTerm;
-                    await _products.SearchAsync();
                 }
+                await _products.SearchAsync();
                 break;
 
             case "Restaurantes":
                 CurrentPage = _restaurants;
                 await _restaurants.LoadAsync();
+                break;
+
+            case "Carrinho":
+                CurrentPage = _cartPage;
                 break;
 
             default:

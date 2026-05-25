@@ -76,7 +76,7 @@ public partial class ProductDetailsDialogViewModel : ObservableObject
     [RelayCommand]
     private void AddToCart()
     {
-        _cart.Add(Preco, Quantidade);
+        _cart.AddOrIncrease(Id, Nome, Preco, ImagemSelecionada ?? Imagens.FirstOrDefault(), Quantidade);
         CloseRequested?.Invoke();
     }
 
@@ -90,4 +90,3 @@ public partial class ProductDetailsDialogViewModel : ObservableObject
             .ToArray();
     }
 }
-

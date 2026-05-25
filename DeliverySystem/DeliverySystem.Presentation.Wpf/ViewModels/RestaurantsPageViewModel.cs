@@ -16,6 +16,12 @@ public partial class RestaurantsPageViewModel : ObservableObject
     [ObservableProperty]
     private string _titulo = "Lanches";
 
+    [ObservableProperty]
+    private bool _isLoading;
+
+    [ObservableProperty]
+    private string? _errorMessage;
+
     public RestaurantsPageViewModel(ScopedRunner runner)
     {
         _runner = runner;
@@ -33,6 +39,8 @@ public partial class RestaurantsPageViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadAsync()
     {
+        IsLoading = true;
+        ErrorMessage = null;
         try
         {
             await _runner.RunAsync(async sp =>
@@ -58,6 +66,11 @@ public partial class RestaurantsPageViewModel : ObservableObject
         catch
         {
             LoadMock();
+            ErrorMessage = "Modo demonstração: não foi possível carregar do banco.";
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

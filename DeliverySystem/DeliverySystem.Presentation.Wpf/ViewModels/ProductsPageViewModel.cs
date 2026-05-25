@@ -12,6 +12,7 @@ public partial class ProductsPageViewModel : ObservableObject
     private readonly ScopedRunner _runner;
     private readonly IProductDetailsDialogService _dialog;
     private readonly Dictionary<int, string> _restauranteNomes = new();
+    private int _searchVersion;
 
     public ObservableCollection<RestaurantOptionViewModel> Restaurantes { get; } = new();
     public ObservableCollection<ProductCardViewModel> Itens { get; } = new();
@@ -25,6 +26,9 @@ public partial class ProductsPageViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private string? _errorMessage;
+
     public ProductsPageViewModel(ScopedRunner runner, IProductDetailsDialogService dialog)
     {
         _runner = runner;
@@ -35,6 +39,7 @@ public partial class ProductsPageViewModel : ObservableObject
     public async Task LoadAsync()
     {
         IsLoading = true;
+        ErrorMessage = null;
         try
         {
             await _runner.RunAsync(async sp =>
@@ -57,7 +62,11 @@ public partial class ProductsPageViewModel : ObservableObject
             });
 
             RestauranteSelecionado ??= Restaurantes.FirstOrDefault();
-            await SearchAsync();
+        }
+        catch
+        {
+            LoadMock();
+            ErrorMessage = "Modo demonstração: não foi possível carregar do banco.";
         }
         finally
         {
@@ -68,25 +77,47 @@ public partial class ProductsPageViewModel : ObservableObject
     [RelayCommand]
     public async Task SearchAsync()
     {
+        var version = Interlocked.Increment(ref _searchVersion);
         var termo = Busca?.Trim() ?? string.Empty;
+        var selectedId = RestauranteSelecionado?.Id;
         IReadOnlyList<Produto> produtos = Array.Empty<Produto>();
 
-        await _runner.RunAsync(async sp =>
+        IsLoading = true;
+        ErrorMessage = null;
+        try
         {
-            var produtosService = sp.GetRequiredService<Application.Services.ProdutoAppService>();
+            await _runner.RunAsync(async sp =>
+            {
+                var produtosService = sp.GetRequiredService<Application.Services.ProdutoAppService>();
 
-            if (RestauranteSelecionado?.Id is int restauranteId)
+                if (selectedId is int restauranteId)
+                {
+                    var baseList = await produtosService.ListByRestauranteAsync(restauranteId);
+                    produtos = string.IsNullOrWhiteSpace(termo)
+                        ? baseList
+                        : baseList.Where(p => p.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+                else
+                {
+                    produtos = await produtosService.SearchByNomeAsync(termo);
+                }
+            });
+        }
+        catch
+        {
+            LoadMockItems(termo);
+            ErrorMessage = "Modo demonstração: busca carregada localmente.";
+            return;
+        }
+        finally
+        {
+            if (version == _searchVersion)
             {
-                var baseList = await produtosService.ListByRestauranteAsync(restauranteId);
-                produtos = string.IsNullOrWhiteSpace(termo)
-                    ? baseList
-                    : baseList.Where(p => p.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase)).ToList();
+                IsLoading = false;
             }
-            else
-            {
-                produtos = await produtosService.SearchByNomeAsync(termo);
-            }
-        });
+        }
+
+        if (version != _searchVersion) return;
 
         Itens.Clear();
         foreach (var p in produtos.OrderBy(p => p.Nome))
@@ -110,6 +141,43 @@ public partial class ProductsPageViewModel : ObservableObject
     {
         if (card is null) return;
         _dialog.Show(card);
+    }
+
+    private void LoadMock()
+    {
+        _restauranteNomes.Clear();
+        _restauranteNomes[1] = "Burger House";
+        _restauranteNomes[2] = "Sushi Now";
+
+        Restaurantes.Clear();
+        Restaurantes.Add(new RestaurantOptionViewModel(null, "Todos os restaurantes"));
+        Restaurantes.Add(new RestaurantOptionViewModel(1, "Burger House"));
+        Restaurantes.Add(new RestaurantOptionViewModel(2, "Sushi Now"));
+        RestauranteSelecionado ??= Restaurantes.FirstOrDefault();
+
+        LoadMockItems(Busca);
+    }
+
+    private void LoadMockItems(string? termo)
+    {
+        var t = termo?.Trim() ?? string.Empty;
+        var all = new List<ProductCardViewModel>
+        {
+            new(1, "Burger Smash", "Burger duplo com fritas", null, 32.90m, "Prato", "Burger House", 4.8m, 29, 0m),
+            new(2, "Combo Frango", "Sanduíche + refri", null, 27.50m, "Prato", "Burger House", 4.7m, 35, 7.90m),
+            new(3, "Temaki Salmão", "Temaki premium 180g", null, 26.50m, "Prato", "Sushi Now", 4.6m, 45, 9.90m),
+            new(4, "Coca-Cola 350ml", "Bebida gelada", null, 7.00m, "Bebida", "Burger House", 4.8m, 29, 0m)
+        };
+
+        var filtered = string.IsNullOrWhiteSpace(t)
+            ? all
+            : all.Where(p => p.Nome.Contains(t, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        Itens.Clear();
+        foreach (var p in filtered)
+        {
+            Itens.Add(p);
+        }
     }
 }
 

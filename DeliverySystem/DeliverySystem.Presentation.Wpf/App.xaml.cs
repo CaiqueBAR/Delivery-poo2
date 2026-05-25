@@ -32,6 +32,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<HomePageViewModel>();
                 services.AddTransient<RestaurantsPageViewModel>();
                 services.AddTransient<ProductsPageViewModel>();
+                services.AddTransient<CartPageViewModel>();
                 services.AddTransient<DashboardPageViewModel>();
                 services.AddTransient<MainViewModel>();
                 services.AddTransient<MainWindow>();

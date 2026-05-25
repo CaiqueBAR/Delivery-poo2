@@ -93,13 +93,30 @@
                     <Border Padding="12,8" Background="#F3F4F6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="999">
                         <TextBlock Text="Av. Porto Seguro, 1097" Foreground="{StaticResource TextSecondaryBrush}" />
                     </Border>
-                    <Border Margin="14,0,0,0" Padding="12,8" Background="#F3F4F6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="999">
+                    <Button Margin="14,0,0,0"
+                            Padding="12,8"
+                            Background="#F3F4F6"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            Cursor="Hand"
+                            Command="{Binding GoToCartCommand}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Padding="{TemplateBinding Padding}"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="999">
+                                    <ContentPresenter />
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Cart.Total, StringFormat=R$ {0:0.00}}" FontWeight="SemiBold" />
                             <TextBlock Margin="8,0,8,0" Text="|" Foreground="{StaticResource TextSecondaryBrush}" />
                             <TextBlock Text="{Binding Cart.ItemsCount, StringFormat={}{0} itens}" Foreground="{StaticResource TextSecondaryBrush}" />
                         </StackPanel>
-                    </Border>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

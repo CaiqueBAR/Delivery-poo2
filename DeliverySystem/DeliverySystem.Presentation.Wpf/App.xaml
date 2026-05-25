@@ -14,6 +14,7 @@
 
         <conv:ImagePathToImageSourceConverter x:Key="ImagePathToImageSourceConverter" />
         <conv:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DataTemplate DataType="{x:Type vm:DashboardPageViewModel}">
             <views:DashboardPageView />
@@ -29,6 +30,10 @@
 
         <DataTemplate DataType="{x:Type vm:ProductsPageViewModel}">
             <views:ProductsPageView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:CartPageViewModel}">
+            <views:CartPageView />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type vm:PlaceholderPageViewModel}">
