@@ -1,7 +1,3 @@
 <Solution>
-  <Project Path="DeliveryMarketplace.Application/DeliveryMarketplace.Application.csproj" />
-  <Project Path="DeliveryMarketplace.Domain/DeliveryMarketplace.Domain.csproj" />
-  <Project Path="DeliveryMarketplace.Infrastructure/DeliveryMarketplace.Infrastructure.csproj" />
-  <Project Path="DeliveryMarketplace.Presentation.WPF/DeliveryMarketplace.Presentation.WPF.csproj" />
-  <Project Path="DeliveryMarketplace.Tests/DeliveryMarketplace.Tests.csproj" />
+  <Project Path="DeliveryMarketplace/DeliveryMarketplace.csproj" />
 </Solution>

@@ -1,0 +1,45 @@
+<UserControl x:Class="DeliveryMarketplace.Views.Admin.UsuariosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="20" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+
+        <Border Style="{StaticResource CardBorder}">
+            <DataGrid x:Name="Grade">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nome" Binding="{Binding Nome}" Width="*" />
+                    <DataGridTextColumn Header="E-mail" Binding="{Binding Email}" Width="*" />
+                    <DataGridTextColumn Header="Perfil" Binding="{Binding PerfilTexto}" Width="110" />
+                    <DataGridTextColumn Header="Situação" Binding="{Binding SituacaoTexto}" Width="80" />
+                    <DataGridTemplateColumn Header="Ação" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Ativar/Desativar" Tag="{Binding}" Style="{StaticResource SmallButton}" Click="Alternar_Click" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <Border Grid.Column="2" Style="{StaticResource CardBorder}" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="Cadastrar entregador" Style="{StaticResource SectionTitleText}" />
+                <TextBlock Text="Senha inicial: 123456" Style="{StaticResource CaptionText}" Margin="0,2,0,0" />
+                <TextBlock Text="Nome" Style="{StaticResource FieldLabel}" />
+                <TextBox x:Name="TxtNome" />
+                <TextBlock Text="E-mail" Style="{StaticResource FieldLabel}" />
+                <TextBox x:Name="TxtEmail" />
+                <TextBlock Text="Telefone" Style="{StaticResource FieldLabel}" />
+                <TextBox x:Name="TxtTelefone" />
+                <TextBlock Text="Veículo (ex.: Moto · ABC1D23)" Style="{StaticResource FieldLabel}" />
+                <TextBox x:Name="TxtVeiculo" />
+                <Button Content="Cadastrar" Style="{StaticResource PrimaryButton}" Margin="0,16,0,0" Click="Cadastrar_Click" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

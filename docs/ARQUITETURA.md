@@ -1,71 +1,60 @@
-# Arquitetura: DeliveryMarketplace (WPF)
+# Arquitetura: DeliveryMarketplace (WPF + MVC)
 
-## Camadas e dependências
+## Visão geral
+
+O sistema é um único projeto WPF organizado no padrão **MVC**, com uma camada **Repository** para o banco.
 
 ```
-Presentation.WPF ──► Application ──► Domain
-        │                 ▲
-        └──► Infrastructure ┘ (implementa as interfaces da Application)
-
-Tests ──► Domain, Application, Infrastructure
+ View (XAML + code-behind)  ──chama──►  Controller  ──usa──►  Repository  ──►  AppDbContext (EF Core)  ──►  delivery.db
+        ▲                                   │
+        └────────── recebe Models ──────────┘
 ```
 
-| Projeto | Responsabilidade | Conteúdo atual (Fase 1) |
+| Pasta | Papel | Regra |
 |---|---|---|
-| `DeliveryMarketplace.Domain` | Entidades, enums, value objects e regras essenciais. Não depende de nenhum outro projeto nem de EF Core. | Pastas `Entities/`, `Enums/`, `Interfaces/` e `ValueObjects/` (vazias até a Fase 2) |
-| `DeliveryMarketplace.Application` | Serviços, casos de uso, DTOs, validações e contratos (interfaces). | `IDatabaseStatusService`, `DatabaseStatusDto`, `AddApplication()` |
-| `DeliveryMarketplace.Infrastructure` | EF Core, SQLite, repositórios, configurações Fluent API, migrations e seed. | `ApplicationDbContext`, `ApplicationDbContextFactory`, `SqliteConnectionStringResolver`, `DatabaseStatusService`, `AddInfrastructure()` |
-| `DeliveryMarketplace.Presentation.WPF` | Views XAML, ViewModels, navegação, estilos e conversores. | `App` (Host), `MainWindow`, `HomeView`, `SystemStatusView`, `StatCard`, `NavigationService` |
-| `DeliveryMarketplace.Tests` | Testes unitários e de integração. | 8 testes: resolução do caminho do banco e registro de DI com SQLite real |
+| `Models/` | Classes de dados com propriedades públicas. Cada uma vira uma tabela. | Não acessa banco nem tela. |
+| `Views/` | Telas (`UserControl`) e a `MainWindow`. O code-behind lê os campos, chama o Controller e mostra o resultado. | Não tem regra de negócio nem acesso ao banco. |
+| `Controllers/` | Regras de negócio de cada perfil: validações, mudanças de status, pagamento simulado, relatórios. | Lança `RegraException` com mensagem amigável quando algo não é permitido. |
+| `Repositories/` | Acesso ao banco. `Repository<T>` tem o CRUD genérico; os repositórios específicos herdam dele e acrescentam consultas. | Cada método abre e fecha seu próprio `AppDbContext`. |
+| `Data/` | `AppDbContext` (tabelas e relacionamentos) e `Seguranca` (hash de senha). | |
 
-## Inicialização (`App.xaml.cs`)
+## Fluxo de uma ação (exemplo: restaurante aceita um pedido)
 
-1. `Host.CreateApplicationBuilder` monta a injeção de dependência, lê o `appsettings.json` e configura o logging.
-2. Cada camada registra seus próprios serviços: `AddApplication()`, `AddInfrastructure(configuration)` e `AddPresentation()`.
-3. A `MainWindow` é obtida do container, que injeta o `MainWindowViewModel` nela.
-4. O `MainWindowViewModel` navega para a página inicial.
-5. Exceções não tratadas na interface são registradas no log e exibidas em uma mensagem amigável (`DispatcherUnhandledException`).
+1. `RestaurantePainelView` recebe o clique em **Avançar** e pega o `Pedido` da linha (`Tag` do botão).
+2. Chama `RestauranteController.AvancarPedido(id)` dentro de `Componentes.Executar(...)`.
+3. O controller confere se o pedido é do restaurante logado e muda o status (`AguardandoConfirmacao → Confirmado`).
+4. `PedidoRepository.AtualizarStatus` grava no banco.
+5. Se uma regra falhar, o `RegraException` vira uma mensagem de aviso; a tela recarrega quando dá certo.
 
-## MVVM e navegação
+## Criação do banco (`DatabaseRepository`)
 
-- Os ViewModels herdam de `ViewModelBase` (`ObservableObject` do CommunityToolkit) e usam `[ObservableProperty]` e `[RelayCommand]`.
-- A navegação é *ViewModel-first*: `INavigationService.NavigateToAsync<TViewModel>()` resolve o ViewModel pelo container, e `Resources/ViewTemplates.xaml` mapeia cada ViewModel para sua View por meio de `DataTemplate`.
-- ViewModels que precisam carregar dados ao abrir implementam `INavigationAware`.
-- O code-behind das Views só contém `InitializeComponent()` ou DependencyProperties de componentes.
+- `App.xaml.cs` chama `new DatabaseRepository().CriarBanco()` ao iniciar.
+- `CriarBanco()` usa `Database.EnsureCreated()`: cria o arquivo e as tabelas se não existirem (sem migrations).
+- Se a tabela de usuários estiver vazia, insere os dados de demonstração.
+- `RecriarBanco()` apaga e recria tudo (botão na tela **Banco de dados** do administrador).
+- `ContarRegistros()` mostra quantos registros existem em cada tabela.
 
-**Para adicionar uma nova tela:**
+## Navegação e sessão
 
-1. Crie o ViewModel em `ViewModels/`.
-2. Crie a View em `Views/`.
-3. Registre o ViewModel em `DependencyInjection.cs`.
-4. Adicione o `DataTemplate` em `ViewTemplates.xaml`.
-5. Se a tela tiver item de menu, inclua um `NavigationItem` no `MainWindowViewModel`.
+- `MainWindow` mostra a `LoginView` sem menu. Após o login, `AposLogin` monta o menu do perfil e abre a primeira tela.
+- `Sessao` (estática) guarda o usuário logado; os controllers usam `Sessao.Usuario` para saber quem está agindo.
 
-## Visual
+## Regras de negócio principais
 
-- `Themes/Colors.xaml`: paleta central (cores e pincéis), com fontes Segoe UI Variable e Segoe Fluent Icons.
-- `Styles/Controls.xaml`: tipografia, cartões, badges e botões (primário, claro e de menu).
-- `Resources/Converters.xaml`: conversores reutilizáveis.
-- `Views/Components/`: UserControls reutilizáveis. `StatCard` será a base dos dashboards.
+| Regra | Onde |
+|---|---|
+| Fluxo do pedido: Aguardando → Confirmado → Em preparo → Pronto → Em rota → Entregue (ou Cancelado) | `RestauranteController`, `EntregadorController` |
+| Cliente só cancela antes de o restaurante aceitar | `ClienteController.CancelarPedido` |
+| Carrinho com itens de um único restaurante | `ClienteController.AdicionarAoCarrinho` |
+| Pedido só em restaurante ativo e aberto | `ClienteController.FazerPedido` |
+| Entregador: uma entrega por vez e só quando disponível | `EntregadorController.AceitarEntrega` |
+| Pagamento: Pix aprovado; cartão de 16 dígitos (final 0000 recusa); dinheiro aprovado na entrega; cancelamento estorna | `PagamentoController` |
+| Comissão da plataforma: 12% do subtotal; taxa de entrega vai para o entregador | `Pedido.PercentualComissao` |
+| Nome e preço do produto copiados para o item do pedido (histórico não muda) | `ClienteController.FazerPedido` |
 
 ## Decisões
 
-1. **O repositório anterior (`DeliverySystem`) e o protótipo em ASP.NET MVC foram substituídos** por uma solução nova, com os nomes e a estrutura do prompt mestre.
-2. **`IDbContextFactory` em vez de um DbContext injetado.** Uma aplicação desktop não tem escopo por requisição, e um DbContext de vida longa acumula entidades rastreadas e causa conflitos. Cada operação cria um contexto curto.
-3. **Caminho do banco resolvido para absoluto** (`SqliteConnectionStringResolver`): o `delivery.db` fica ao lado do executável (`bin/.../delivery.db`), independentemente da pasta de onde a aplicação foi iniciada. O `appsettings.json` guarda apenas `Data Source=delivery.db`.
-4. **Nenhum banco é criado na Fase 1.** O diagnóstico abre uma conexão SQLite em memória para provar que o provedor funciona. O `delivery.db` definitivo será gerado pelas migrations na Fase 2, a partir do diagrama UML aprovado.
-5. **`ApplicationDbContextFactory` (tempo de design)** permite rodar `dotnet ef` apontando para o projeto Infrastructure, sem depender do Host do WPF.
-6. **Versões fixas:** todos os pacotes `Microsoft.*` estão em 10.0.14, e o `dotnet-ef` 10.0.14 está fixado no manifesto `dotnet-tools.json`.
-7. **Valores monetários (planejado para a Fase 2):** `decimal` no domínio, persistido como centavos (`long`) por meio de um `ValueConverter`, porque o SQLite não tem um tipo decimal nativo.
-
-## Extensibilidade
-
-Novos módulos (marketing, avaliações, financeiro, logística, comunicação, relatórios) seguem o mesmo caminho:
-
-1. Entidade em `Domain/Entities`.
-2. Configuração Fluent API em `Infrastructure/Configurations`, aplicada automaticamente por `ApplyConfigurationsFromAssembly`.
-3. Interface e serviço em `Application`, com implementação técnica em `Infrastructure` quando necessário.
-4. ViewModel e View na apresentação.
-5. Uma nova migration.
-
-Nenhuma camada inferior conhece a interface gráfica.
+1. **Um projeto só, em MVC**, para facilitar o entendimento e a apresentação. A versão anterior em camadas (Domain/Application/Infrastructure + MVVM) foi substituída.
+2. **`EnsureCreated` em vez de migrations**: mais simples para um projeto acadêmico. Mudou o modelo? Use **Recriar banco** (ou apague o `delivery.db`).
+3. **Senha com hash SHA-256** (`Data/Seguranca.cs`). Suficiente para o projeto; em produção, o ideal seria PBKDF2/BCrypt com salt por usuário.
+4. **Valores em `decimal`**. O SQLite grava como texto; somas e ordenações são feitas em memória nos controllers/repositórios.

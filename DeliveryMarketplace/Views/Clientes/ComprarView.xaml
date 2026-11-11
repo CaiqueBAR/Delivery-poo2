@@ -1,0 +1,95 @@
+<UserControl x:Class="DeliveryMarketplace.Views.Clientes.ComprarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Restaurantes -->
+        <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Padding="12">
+            <StackPanel>
+                <TextBlock Text="Restaurantes" Style="{StaticResource SectionTitleText}" Margin="8,4,0,8" />
+                <ListBox x:Name="LstRestaurantes" BorderThickness="0" SelectionChanged="Restaurante_Changed">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="4,6">
+                                <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" FontSize="14" />
+                                <TextBlock Text="{Binding Descricao}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" MaxWidth="200" />
+                                <TextBlock Style="{StaticResource CaptionText}">
+                                    <Run Text="{Binding SituacaoTexto, Mode=OneWay}" /> · entrega <Run Text="{Binding TaxaEntrega, StringFormat=C, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </Border>
+
+        <!-- Cardápio -->
+        <Border Grid.Column="2" Style="{StaticResource CardBorder}" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock x:Name="TxtCardapio" Text="Escolha um restaurante" Style="{StaticResource SectionTitleText}" Margin="0,0,0,12" />
+                <DataGrid x:Name="GradeCardapio">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Categoria" Binding="{Binding CategoriaNome}" Width="120" />
+                        <DataGridTextColumn Header="Produto" Binding="{Binding Nome}" Width="*" />
+                        <DataGridTextColumn Header="Preço" Binding="{Binding Preco, StringFormat=C}" Width="85" />
+                        <DataGridTemplateColumn Header="" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Adicionar" Tag="{Binding}" Style="{StaticResource SmallButton}" Click="Adicionar_Click" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Border>
+
+        <!-- Carrinho e pagamento -->
+        <Border Grid.Column="4" Style="{StaticResource CardBorder}" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="Seu carrinho" Style="{StaticResource SectionTitleText}" />
+                <ItemsControl x:Name="LstCarrinho" Margin="0,10,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,4">
+                                <TextBlock>
+                                    <Run Text="{Binding Quantidade, Mode=OneWay}" />x <Run Text="{Binding Nome, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock Text="{Binding Subtotal, StringFormat=C}" HorizontalAlignment="Right" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,10,0,0" Padding="0,8,0,0">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtSubtotal" Style="{StaticResource BodyText}" />
+                        <TextBlock x:Name="TxtTaxa" Style="{StaticResource BodyText}" />
+                        <TextBlock x:Name="TxtTotal" Style="{StaticResource SectionTitleText}" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <Button Content="Esvaziar carrinho" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left"
+                        Margin="0,10,0,0" Click="Esvaziar_Click" />
+
+                <TextBlock Text="Forma de pagamento" Style="{StaticResource FieldLabel}" Margin="0,16,0,4" />
+                <ComboBox x:Name="CmbPagamento" SelectionChanged="Pagamento_Changed" />
+                <StackPanel x:Name="PainelCartao" Visibility="Collapsed">
+                    <TextBlock Text="Número do cartão (16 dígitos)" Style="{StaticResource FieldLabel}" />
+                    <TextBox x:Name="TxtCartao" />
+                    <TextBlock Text="Simulação: final 0000 é recusado. Ex.: 4111 1111 1111 1111" Style="{StaticResource CaptionText}"
+                               TextWrapping="Wrap" Margin="0,4,0,0" />
+                </StackPanel>
+                <TextBlock Text="Observação" Style="{StaticResource FieldLabel}" />
+                <TextBox x:Name="TxtObservacao" />
+
+                <Button Content="Finalizar pedido" Style="{StaticResource PrimaryButton}" Margin="0,16,0,0" Click="Finalizar_Click" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

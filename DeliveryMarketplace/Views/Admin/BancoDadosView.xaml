@@ -1,0 +1,20 @@
+<UserControl x:Class="DeliveryMarketplace.Views.Admin.BancoDadosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <Border Style="{StaticResource CardBorder}">
+            <StackPanel>
+                <TextBlock Text="Arquivo do banco (SQLite)" Style="{StaticResource SectionTitleText}" />
+                <TextBox x:Name="TxtCaminho" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                         FontFamily="Consolas" Margin="0,8,0,0" TextWrapping="Wrap" />
+                <TextBlock Text="O banco é criado automaticamente pelo DatabaseRepository na primeira execução."
+                           Style="{StaticResource BodyText}" Margin="0,6,0,0" />
+                <Button Content="Recriar banco com os dados de demonstração" Style="{StaticResource SecondaryButton}"
+                        HorizontalAlignment="Left" Margin="0,14,0,0" Click="Recriar_Click" />
+            </StackPanel>
+        </Border>
+
+        <TextBlock Text="Registros por tabela" Style="{StaticResource SectionTitleText}" Margin="0,20,0,12" />
+        <WrapPanel x:Name="Indicadores" />
+    </StackPanel>
+</UserControl>
