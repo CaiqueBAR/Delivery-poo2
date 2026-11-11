@@ -61,4 +61,4 @@ Detalhes em [docs/ARQUITETURA.md](docs/ARQUITETURA.md) e modelo de dados em [doc
 - [x] Fase 8: pagamentos simulados (Pix, cartão, dinheiro, estorno)
 - [x] Fase 9: relatórios por período e exportação CSV
 
-As melhorias pendentes estão nas [issues do GitHub](https://github.com/CaiqueBAR/Delivery-poo2/issues) (lista em [docs/ISSUES.md](docs/ISSUES.md)).
+As melhorias pendentes estão nas [issues do GitHub](https://github.com/CaiqueBAR/Delivery-poo2/issues).
